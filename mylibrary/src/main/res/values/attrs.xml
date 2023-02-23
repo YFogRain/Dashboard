@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DashboardView">
+        <attr name="show_circle_width" format="dimension" /> <!-- 控件宽度 -->
+        <attr name="speed_number_size" format="dimension" /> <!-- 测量中间文字大小 -->
+        <attr name="speed_unit_size" format="dimension" /><!-- 测量中间单位文字大小 -->
+        <attr name="circle_stroke_width" format="dimension" /><!-- 环形宽度 -->
+        <attr name="speed_scale_text_size" format="dimension" /><!-- 刻度文字大小 -->
+        <attr name="speed_start_color" format="color" /><!-- 环形进度条开始颜色 -->
+        <attr name="speed_end_color" format="color" /><!-- 环形进度条结束颜色 -->
+        <attr name="speed_bg_color" format="color" /><!-- 环形进度背景颜色 -->
+        <attr name="speed_scale_color" format="color" /><!-- 刻度盘线条颜色 -->
+        <attr name="speed_scale_unit_color" format="color" /><!-- 刻度盘文字单位颜色 -->
+
+        <attr name="speed_text_color" format="color" /><!-- 测量数字颜色 -->
+        <attr name="speed_unit_text_color" format="color" /><!-- 测量单位文字颜色 -->
+        <attr name="speed_text_bg_color" format="color" /><!-- 测量文字背景高亮颜色 -->
+    </declare-styleable>
+</resources>
