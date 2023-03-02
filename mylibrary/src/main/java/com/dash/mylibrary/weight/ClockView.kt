@@ -161,20 +161,14 @@ class ClockView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             val angle = fl * Math.PI / 180  //当前旋转到的角度
             var sx = mx + sin(angle) * radius
             var sy = my - cos(angle) * radius
-            if (fl > 0f && fl < 90f) {
+            if (fl > 0f && fl <= 90f) {
                 sx -= (textWidth / 2)
                 sy += (scaleTextSize / 2)
-            } else if (fl == 90f) {
-                sx -= (textWidth / 2)
-                sy += (scaleTextSize / 2)
-            } else if (fl > 90f && fl < 180f) {
+            }else if (fl > 90f && fl < 180f) {
                 sx -= (textWidth / 2)
             } else if (fl > 180f && fl < 270f) {
                 sx += (textWidth / 2)
-            } else if (fl == 270f) {
-                sy += (scaleTextSize / 2)
-                sx += (textWidth / 2)
-            } else if (fl > 270 && fl < 360f) {
+            } else if (fl >= 270 && fl < 360f) {
                 sx += (textWidth / 2)
                 sy += (scaleTextSize / 2)
             } else if (fl == 360f) {
