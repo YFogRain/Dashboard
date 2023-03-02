@@ -1,4 +1,4 @@
-package com.dash.mylibrary
+package com.dash.mylibrary.weight
 
 import android.content.Context
 import android.graphics.*
@@ -6,8 +6,11 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import androidx.annotation.MainThread
+import com.dash.mylibrary.R
 import com.dash.mylibrary.utils.UiCommon
 import com.dash.mylibrary.utils.UnitConstants
+import com.dash.mylibrary.utils.UnitConstants.KB
+import com.dash.mylibrary.utils.UnitConstants.MB
 import com.dash.mylibrary.utils.getCurrentColor
 import java.math.RoundingMode
 
@@ -20,8 +23,10 @@ class DashboardView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var mNumberSize = UiCommon.dp2px(28).toInt()
     private var mUnitSize = UiCommon.dp2px(12).toInt()
     private var currentBytes: Long = 0//当前进度
-    private val startDashAngle = 135f //开始的圆心角度
-    private val endDashAngle = 270f //需要画多大的角度
+    
+    private var startDashAngle: Float //开始的圆心角度
+    private var radianDashAngle = 270f //需要画多大的角度
+    
     private var startColor = Color.parseColor("#FFCC0CED")
     private var endColor = Color.parseColor("#009BFF")
     
@@ -82,6 +87,13 @@ class DashboardView @JvmOverloads constructor(context: Context, attrs: Attribute
     init {
         initAttrs(context, attrs)
         initPaint()
+        /**
+         * 计算圆盘开始角度
+         */
+        if (radianDashAngle > 360) {
+            throw IndexOutOfBoundsException("圆角超出计算范围")
+        }
+        startDashAngle = (360f - radianDashAngle) / 2 + 90
     }
     
     /**
@@ -104,6 +116,8 @@ class DashboardView @JvmOverloads constructor(context: Context, attrs: Attribute
         
         arcStrokeWidth = a.getDimensionPixelSize(R.styleable.DashboardView_circle_stroke_width, arcStrokeWidth)
         scaleTextSize = a.getDimensionPixelSize(R.styleable.DashboardView_speed_scale_text_size, scaleTextSize)
+    
+        radianDashAngle = a.getFloat(R.styleable.DashboardView_speed_circle_radian, radianDashAngle)
         a.recycle()
     }
     
@@ -159,31 +173,49 @@ class DashboardView @JvmOverloads constructor(context: Context, attrs: Attribute
         //绘制刻度线,通过两次不同大小圆的遮罩,达到刻度的长短粗细效果
         val mx = (width / 2 - 1).toFloat()
         val my = (height / 2 - 1).toFloat()
+        
+        val start = scaleTextSize.toFloat()
+    
+        val startY = start + UiCommon.dp2px(15)
+        val startLongY = start + UiCommon.dp2px(8)
+        val endY = start + UiCommon.dp2px(25)
+        
+        val radianItem = radianDashAngle.toBigDecimal().divide(100.toBigDecimal(), 2, RoundingMode.HALF_DOWN).toFloat()
+        Log.d("radianDashAngleTag", "radianItem:$radianItem")
         for (i in 0..100) {
             canvas.save()
-            canvas.rotate((-startDashAngle + i * 2.7).toFloat(), mx, my)
-            
-            scalePaint.color = if (progressAngle > 0 && i * 2.7 <= progressAngle) {
-                2.7.toBigDecimal().setScale(2, RoundingMode.HALF_DOWN)
+            canvas.rotate(-startDashAngle + i * radianItem, mx, my)
+        
+            scalePaint.color = if (progressAngle > 0 && i * radianItem <= progressAngle) {
+                radianItem.toBigDecimal().setScale(2, RoundingMode.HALF_DOWN)
                     .multiply(i.toBigDecimal())
-                    .divide(270.toBigDecimal(), 2, RoundingMode.HALF_DOWN).toDouble()
+                    .divide(radianDashAngle.toBigDecimal(), 2, RoundingMode.HALF_DOWN).toDouble()
                     .getCurrentColor(startColor, endColor)
             } else scaleColor
-            
-            canvas.drawLine(mx, if (i % 25 == 0) 28F else 35F, mx, 45F, scalePaint)
+        
+            canvas.drawLine(mx, if (i % 25 == 0) startLongY else startY, mx, endY, scalePaint)
             canvas.restore()
         }
-        drawScaleText(canvas)
+        drawScaleText(canvas,start)
     }
     
-    private fun drawScaleText(canvas: Canvas) {
+    private fun drawScaleText(canvas: Canvas,start:Float) {
         val circleWidth = width.toFloat() - 1f
-        val oval4 = RectF(20f, 20f, circleWidth - 20f, circleWidth - 20f)
-        drawPathText(canvas, oval4, startDashAngle, "0K")
-        drawPathText(canvas, oval4, 202f, "512K")
-        drawPathText(canvas, oval4, -90f, "1M")
-        drawPathText(canvas, oval4, -25f, "5M")
-        drawPathText(canvas, oval4, 45f, "10M")
+        val oval4 = RectF(start, start, circleWidth - start, circleWidth - start)
+    
+        val itemAngle = radianDashAngle.toBigDecimal().divide(4.toBigDecimal(), 2, RoundingMode.HALF_DOWN)
+    
+        for (i in 0 until 5) {
+            val startAngle = itemAngle.multiply(i.toBigDecimal()).add(startDashAngle.toBigDecimal()).setScale(2, RoundingMode.HALF_DOWN).toFloat()
+            Log.d("radianDashAngleTag", "drawScaleText-startAngle:$startAngle")
+            drawPathText(canvas, oval4, startAngle, when (i) {
+                0 -> "0K"
+                1 -> "512K"
+                2 -> "1M"
+                3 -> "5M"
+                else -> "10M"
+            })
+        }
     }
     
     /**
@@ -200,11 +232,11 @@ class DashboardView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     private fun drawCircle(canvas: Canvas, progressAngle: Float) {
         Log.d("dashboardTag", "drawCircle:$progressAngle")
-        val circleWidth = width.toFloat() - 62f
-        val start = 62f
+        val circleWidth = width.toFloat() - scaleTextSize.toFloat() - UiCommon.dp2px(40)
+        val start = UiCommon.dp2px(40) + scaleTextSize.toFloat()
         val oval = RectF(start, start, circleWidth, circleWidth) //绘制区域
         //绘制背景圆弧
-        canvas.drawArc(oval, startDashAngle, endDashAngle, false, mArcBgPaint)
+        canvas.drawArc(oval, startDashAngle, radianDashAngle, false, mArcBgPaint)
         //绘制进度
         mArcProgressPaint.shader = LinearGradient(start, circleWidth, circleWidth, circleWidth, intArrayOf(startColor, endColor), null, Shader.TileMode.CLAMP)
         canvas.drawArc(oval, startDashAngle, progressAngle, false, mArcProgressPaint)
@@ -223,33 +255,34 @@ class DashboardView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 获取当前的进度圆角度
      */
     private fun loadProgressToAngle(): Float {
-        return if (currentBytes <= 512 * UnitConstants.KB) {
-            currentBytes.toBigDecimal()
-                .setScale(2, RoundingMode.HALF_DOWN)
-                .divide((512 * UnitConstants.KB).toBigDecimal(), 2, RoundingMode.HALF_DOWN)
-                .multiply(67.5.toBigDecimal().setScale(2, RoundingMode.HALF_DOWN))
-                .toFloat()
-        } else if (currentBytes <= 1 * UnitConstants.MB) {
-            currentBytes.toBigDecimal()
-                .setScale(2, RoundingMode.HALF_DOWN)
-                .divide((1 * UnitConstants.MB).toBigDecimal(), 2, RoundingMode.HALF_DOWN)
-                .multiply(67.5.toBigDecimal().setScale(2, RoundingMode.HALF_DOWN))
-                .add(67.5.toBigDecimal().setScale(2, RoundingMode.HALF_DOWN))
-                .toFloat()
-        } else if (currentBytes <= 5 * UnitConstants.MB) {
-            currentBytes.toBigDecimal()
-                .setScale(2, RoundingMode.HALF_DOWN)
-                .divide((5 * UnitConstants.MB).toBigDecimal(), 2, RoundingMode.HALF_DOWN)
-                .multiply(67.5.toBigDecimal().setScale(2, RoundingMode.HALF_DOWN))
-                .add(135.toBigDecimal().setScale(2, RoundingMode.HALF_DOWN))
-                .toFloat()
-        } else if (currentBytes < 10 * UnitConstants.MB) {
-            currentBytes.toBigDecimal()
-                .setScale(2, RoundingMode.HALF_DOWN)
-                .divide((10 * UnitConstants.MB).toBigDecimal(), 2, RoundingMode.HALF_DOWN)
-                .multiply(202.5.toBigDecimal().setScale(2, RoundingMode.HALF_DOWN))
-                .toFloat()
-        } else 270f
+        val newItem = radianDashAngle.toBigDecimal().divide(4.toBigDecimal(), 2, RoundingMode.HALF_DOWN)
+        Log.d("radianDashAngleTag", "newItem:$newItem,radianDashAngle:$radianDashAngle,startDashAngle:${startDashAngle}")
+        return currentBytes.toBigDecimal().setScale(2, RoundingMode.HALF_DOWN).run {
+            return@run if (currentBytes <= 512 * KB) {
+                this.divide((512 * KB).toBigDecimal(), 2, RoundingMode.HALF_DOWN)
+                    .multiply(newItem)
+                    .setScale(2,RoundingMode.HALF_DOWN)
+                    .toFloat()
+            } else if (currentBytes <= 1 * MB) {
+                this.divide((1 * MB).toBigDecimal(), 2, RoundingMode.HALF_DOWN)
+                    .multiply(newItem)
+                    .add(newItem)
+                    .setScale(2,RoundingMode.HALF_DOWN)
+                    .toFloat()
+            } else if (currentBytes <= 5 * MB) {
+                this.divide((5 * MB).toBigDecimal(), 2, RoundingMode.HALF_DOWN)
+                    .multiply(newItem)
+                    .add(newItem.multiply(2.toBigDecimal()))
+                    .setScale(2,RoundingMode.HALF_DOWN)
+                    .toFloat()
+            } else if (currentBytes < 10 * MB) {
+                this.divide((10 * MB).toBigDecimal(), 2, RoundingMode.HALF_DOWN)
+                    .multiply(newItem)
+                    .add(newItem.multiply(3.toBigDecimal()))
+                    .setScale(2,RoundingMode.HALF_DOWN)
+                    .toFloat()
+            } else radianDashAngle
+        }
     }
     
     /**

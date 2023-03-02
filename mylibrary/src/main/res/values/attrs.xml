@@ -15,5 +15,21 @@
         <attr name="speed_text_color" format="color" /><!-- 测量数字颜色 -->
         <attr name="speed_unit_text_color" format="color" /><!-- 测量单位文字颜色 -->
         <attr name="speed_text_bg_color" format="color" /><!-- 测量文字背景高亮颜色 -->
+
+        <attr name="speed_circle_radian" format="float" /> <!--测量圆展示的角度 -->
+    </declare-styleable>
+    <!--时钟需要配置的参数 -->
+    <declare-styleable name="ClockView">
+        <attr name="clock_circle_width" format="float" /> <!-- 时钟直徑 -->
+        <attr name="clock_wall_width" format="float" /> <!-- 时钟外壁宽度 -->
+        <attr name="clock_wall_color" format="color" /> <!-- 时钟外圈的颜色 -->
+        <attr name="clock_scale_small_color" format="color" /> <!-- 时钟小刻度的颜色 -->
+        <attr name="clock_scale_time_color" format="color" /> <!-- 时钟准点时刻刻度的颜色 -->
+        <attr name="clock_scale_time_size" format="dimension" /> <!-- 时钟秒指针的颜色 -->
+
+        <attr name="clock_hand_hour_color" format="color" /> <!-- 时钟小时指针的颜色 -->
+        <attr name="clock_hand_minute_color" format="color" /> <!-- 时钟分钟指针的颜色 -->
+        <attr name="clock_hand_second_color" format="color" /> <!-- 时钟秒指针的颜色 -->
+
     </declare-styleable>
 </resources>

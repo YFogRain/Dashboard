@@ -6,8 +6,31 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.dash.mylibrary.DashboardView
-        android:id="@+id/dashboard_view"
+<!--    <com.dash.mylibrary.weight.DashboardView-->
+<!--        android:id="@+id/dashboard_view"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        app:circle_stroke_width="4dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:show_circle_width="260dp"-->
+<!--        app:speed_bg_color="#939393"-->
+<!--        app:speed_end_color="#009BFF"-->
+<!--        app:speed_number_size="36sp"-->
+<!--        app:speed_scale_color="#939393"-->
+<!--        app:speed_scale_text_size="12sp"-->
+<!--        app:speed_scale_unit_color="#939393"-->
+<!--        app:speed_start_color="#FFCC0CED"-->
+<!--        app:speed_text_bg_color="#2D94FA"-->
+<!--        app:speed_text_color="#333333"-->
+<!--        app:speed_unit_size="15sp"-->
+<!--        app:speed_unit_text_color="#333333" />-->
+
+    <com.dash.mylibrary.weight.ClockView
+        android:id="@+id/clock_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -15,18 +38,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:show_circle_width="260dp"
-        app:speed_bg_color="#939393"
-        app:speed_end_color="#009BFF"
-        app:speed_number_size="36sp"
-        app:speed_scale_color="#939393"
-        app:speed_unit_text_color="#333333"
-        app:speed_text_bg_color="#2D94FA"
-        app:speed_text_color="#333333"
-        app:speed_scale_text_size="12sp"
-        app:speed_scale_unit_color="#939393"
-        app:speed_start_color="#FFCC0CED"
-        app:speed_unit_size="15sp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
